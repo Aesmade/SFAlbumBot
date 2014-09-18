@@ -208,7 +208,12 @@ class AlbumBot:
 			opp = self.FindBestOpponent(cm, miss)
 			print "Attacking", opp
 			resp = self.SendAction(self.ACTION_ATTACK, [urllib2.quote(opp)], True)
-			if int(resp.split('/')[59]) > int(resp.split('/')[62]):
+			while len(resp.split(';')) != 10
+				time.sleep(120)
+				resp = self.SendAction(self.ACTION_ATTACK, [urllib2.quote(opp)], True)
+			fdata = resp.split(';')[1].split('/')
+			hpindex = (len(fdata)/6 - 1)*6
+			if int(fdata[hpindex]) > int(fdata[hpindex + 3]):
 				print "Won",
 				for i in cm[opp]:
 					if i in miss:
