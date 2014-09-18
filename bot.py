@@ -188,6 +188,8 @@ class AlbumBot:
 		maxv = 0
 		maxchar = ''
 		for c in cm:
+			if c == self.name
+				continue
 			val = 0
 			for item in cm[c]:
 				if item in miss:
@@ -214,7 +216,7 @@ class AlbumBot:
 			else:
 				print "Lost",
 				del cm[opp]
-			print "(Gold gain:", resp.split(';')[7], ", Rank gain:", resp.split(';')[8], ", HP difference:", abs(int(resp.split('/')[59]) - int(resp.split('/')[62])), ")"
+			print "(Gold gain:", float(resp.split(';')[7])/100, ", Rank gain:", resp.split(';')[8], ", HP difference:", abs(int(resp.split('/')[59]) - int(resp.split('/')[62])), ")"
 			wtime = 60*10 + random.randrange(20, 80)
 			endtime = datetime.datetime.now() + datetime.timedelta(seconds = wtime)
 			print "Waiting until", endtime.strftime("%H:%M:%S")
