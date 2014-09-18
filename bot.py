@@ -44,7 +44,7 @@ class AlbumBot:
 	def Login(self):
 		print "Logging in:", self.name
 		self.session = "00000000000000000000000000000000"
-		resp = self.SendAction(self.ACTION_LOGIN, [urllib2.quote(self.name), self.passw, ""])
+		resp = self.SendAction(self.ACTION_LOGIN, [urllib2.quote(self.name), md5.md5(self.passw).hexdigest(), ""])
 		self.session = resp.split(';')[2]
 		print "Got session:", self.session
 
@@ -208,7 +208,7 @@ class AlbumBot:
 			opp = self.FindBestOpponent(cm, miss)
 			print "Attacking", opp
 			resp = self.SendAction(self.ACTION_ATTACK, [urllib2.quote(opp)], True)
-			while len(resp.split(';')) != 10
+			while len(resp.split(';')) != 10:
 				time.sleep(120)
 				resp = self.SendAction(self.ACTION_ATTACK, [urllib2.quote(opp)], True)
 			fdata = resp.split(';')[1].split('/')
@@ -221,7 +221,7 @@ class AlbumBot:
 			else:
 				print "Lost",
 				del cm[opp]
-			print "(Gold gain:", float(resp.split(';')[8])/100, ", Rank gain:", resp.split(';')[7], ", HP difference:", abs(int(resp.split('/')[59]) - int(resp.split('/')[62])), ")"
+			print "(Gold gain:", float(resp.split(';')[8])/100, ", Rank gain:", resp.split(';')[7], ", HP difference:", abs(int(fdata[hpindex]) - int(fdata[hpindex + 3])), ")"
 			wtime = 60*10 + random.randrange(20, 80)
 			endtime = datetime.datetime.now() + datetime.timedelta(seconds = wtime)
 			print "Waiting until", endtime.strftime("%H:%M:%S")
@@ -256,13 +256,12 @@ class AlbumBot:
 
 	def __init__(self, name, passw, server):
 		self.name = name
-		self.passw = md5.md5(passw).hexdigest()
+		self.passw = passw
 		self.server = server
 		self.Login()
 
-def Begin():
-	name = raw_input("Username: ")
-	passw = getpass.getpass("Password: ")
-	low = raw_input("Low rank: ")
-	high = raw_input("High rank: ")
-	AlbumBot(name, passw, "s6.sfgame.gr").BeginAuto(int(low), int(high))
+name = raw_input("Username: ")
+passw = getpass.getpass("Password: ")
+low = raw_input("Low rank: ")
+high = raw_input("High rank: ")
+AlbumBot(name, passw, "s6.sfgame.gr").BeginAuto(int(low), int(high))
