@@ -205,10 +205,16 @@ class AlbumBot:
 		while True:
 			opp = self.FindBestOpponent(cm, miss)
 			print "Attacking", opp
-			self.SendAction(self.ACTION_ATTACK, [urllib2.quote(opp)], True)
-			for i in cm[opp]:
-				if i in miss:
-					miss.remove(i)
+			resp = self.SendAction(self.ACTION_ATTACK, [urllib2.quote(opp)], True)
+			if int(resp.split('/')[59]) > int(resp.split('/')[62]):
+				print "Won",
+				for i in cm[opp]:
+					if i in miss:
+						miss.remove(i)
+			else:
+				print "Lost",
+				del cm[opp]
+			print "(Gold gain:", resp.split(';')[7], ", Rank gain:", resp.split(';')[8], ", HP difference:", abs(int(resp.split('/')[59]) - int(resp.split('/')[62])), ")"
 			wtime = 60*10 + random.randrange(20, 80)
 			endtime = datetime.datetime.now() + datetime.timedelta(seconds = wtime)
 			print "Waiting until", endtime.strftime("%H:%M:%S")
