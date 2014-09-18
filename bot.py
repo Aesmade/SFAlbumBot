@@ -188,7 +188,7 @@ class AlbumBot:
 		maxv = 0
 		maxchar = ''
 		for c in cm:
-			if c == self.name
+			if c == self.name:
 				continue
 			val = 0
 			for item in cm[c]:
