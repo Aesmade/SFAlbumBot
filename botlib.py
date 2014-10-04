@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import urllib2
 import random
 import time
 import md5
 import datetime
-import getpass
 import sqlite3
 
 class AlbumBot:
@@ -23,11 +24,10 @@ class AlbumBot:
 		while True:
 			sreq = self.session + str(act).zfill(3) + ('%3B'.join(params))
 			srand = str(random.randrange(100000000, 999999998, 2)) + str(int(round(time.time()*1000)))
-			opener = urllib2.build_opener()
-			#opener.addheaders.append(("Cookie", "to_flimmerkiste=" + str(int(round(time.time()*1000)))))
+			#self.opener.addheaders.append(("Cookie", "to_flimmerkiste=" + str(int(round(time.time()*1000)))))
 			while True:
 				try:
-					resp = opener.open("http://" + self.server + "/request.php?req=" + sreq + "&random=%2&rnd=" + srand).read()
+					resp = self.opener.open("http://" + self.server + "/request.php?req=" + sreq + "&random=%2&rnd=" + srand).read()
 				except urllib2.URLError:
 					print "Connection error"
 					time.sleep(3)
@@ -65,18 +65,22 @@ class AlbumBot:
 			chars = self.SendAction(7, ['', str(rank)], True).split('/')
 			for i in [x*5+1 for x in range(15)]:
 				try:
-					charmap[chars[i]] = self.GetItems(chars[i])
+					humanname = chars[i].decode('utf-8')
+					#print "Getting char", humanname
+					charmap[humanname] = self.GetItems(humanname)
+					if not any(item[0] == 1 for item in charmap[humanname]):
+						print humanname, "has no weapon"
 					if rankmap != None:
-						rankmap[chars[i]] = rank
+						rankmap[humanname] = rank
 				except:
 					"Error getting items:", chars[i]
-				time.sleep(.1)
+				time.sleep(.6)
 		print "\r100 %"
 		return charmap
 
 	def GetItems(self, name):
 		#print "Getting items of ", name
-		sg = self.SendAction(self.ACTION_PROFILE, [urllib2.quote(name)], True).split('/')
+		sg = self.SendAction(self.ACTION_PROFILE, [urllib2.quote(repr(name)[2:-1].replace('\\u', '%u')).replace('%25', '%')], True).split('/')
 		itemlist = []
 		if len(sg) == 1:
 			return itemlist
@@ -206,11 +210,13 @@ class AlbumBot:
 		miss = self.GetMissing()
 		while True:
 			opp = self.FindBestOpponent(cm, miss)
+			if opp == '':
+				break
 			print "Attacking", opp
-			resp = self.SendAction(self.ACTION_ATTACK, [urllib2.quote(opp)], True)
+			resp = self.SendAction(self.ACTION_ATTACK, [urllib2.quote(repr(opp)[2:-1].replace('\\u', '%u')).replace('%25', '%')], True)
 			while len(resp.split(';')) != 10:
 				time.sleep(120)
-				resp = self.SendAction(self.ACTION_ATTACK, [urllib2.quote(opp)], True)
+				resp = self.SendAction(self.ACTION_ATTACK, [urllib2.quote(repr(opp)[2:-1].replace('\\u', '%u')).replace('%25', '%')], True)
 			fdata = resp.split(';')[1].split('/')
 			hpindex = (len(fdata)/6 - 1)*6
 			if int(fdata[hpindex]) > int(fdata[hpindex + 3]):
@@ -226,6 +232,7 @@ class AlbumBot:
 			endtime = datetime.datetime.now() + datetime.timedelta(seconds = wtime)
 			print "Waiting until", endtime.strftime("%H:%M:%S")
 			time.sleep(wtime)
+		print "No more items found"
 
 	def BeginManual(self, low = 2500, high = 6000):
 		cm = self.MakeCharMap(low, high)
@@ -255,13 +262,8 @@ class AlbumBot:
 		db.close()
 
 	def __init__(self, name, passw, server):
+		self.opener = urllib2.build_opener()
 		self.name = name
 		self.passw = passw
 		self.server = server
 		self.Login()
-
-name = raw_input("Username: ")
-passw = getpass.getpass("Password: ")
-low = raw_input("Low rank: ")
-high = raw_input("High rank: ")
-AlbumBot(name, passw, "s6.sfgame.gr").BeginAuto(int(low), int(high))
