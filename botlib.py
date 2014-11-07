@@ -59,6 +59,7 @@ class AlbumBot:
 	def MakeCharMap(self, lowrank, highrank, rankmap = None):
 		charmap = {}
 		print "Loading Hall of Fame"
+		self.noweps = []
 		for rank in range(lowrank, highrank, 15):
 			print "\r", (100*(rank-lowrank))/(highrank-lowrank), "%",
 			sys.stdout.flush()
@@ -69,7 +70,7 @@ class AlbumBot:
 					#print "Getting char", humanname
 					charmap[humanname] = self.GetItems(humanname)
 					if not any(item[0] == 1 for item in charmap[humanname]):
-						print humanname, "has no weapon"
+						self.noweps.append(humanname)
 					if rankmap != None:
 						rankmap[humanname] = rank
 				except:
@@ -207,6 +208,7 @@ class AlbumBot:
 
 	def BeginAuto(self, low = 2900, high = 3100):
 		cm = self.MakeCharMap(low, high)
+		print "Players with no weapon:", self.noweps
 		miss = self.GetMissing()
 		while True:
 			opp = self.FindBestOpponent(cm, miss)
